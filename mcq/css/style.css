@@ -2,14 +2,14 @@
 	@namespace "http://www.w3.org/1999/xhtml";
 @namespace epub "http://www.idpf.org/2007/ops";*/
 /* Version 19.7, Date:08 JULY 2022 */
-
 body {
 	margin: 0px;
 	padding: 0px;
 	width: 100%;
 	-webkit-font-smoothing: antialiased;
 	text-rendering: optimizeLegibility;
-    font-family: "Times New Roman (OTF) Regular", Times, sans-serif;
+    font-family: sans-serif, "Times New Roman (OTF) Regular", Times;
+    margin: 0;
 }
 .main-document-area.mcq {
     height: 100vh;
@@ -51,13 +51,13 @@ body {
 }
 
 .answer-controls {
-    border-bottom: 1px solid #E6E6E6;
+    border-bottom: 1px solid #c0c0c0;
     padding-bottom: 10px;
     margin-top: 18px;
 }
 .mcq #questionNumber {
     /*font-size: 14px;*/
-    color: var(--blue);
+    color: var(--blue-light);
     font-weight: 600;
     margin-bottom: 5px;
 }
@@ -104,9 +104,9 @@ body {
 }
 
 .focus-input {
-    background: #fff;
+    background: var(--white);
     border-style: solid;
-    border-color: #CDCDCD;
+    border-color: var(--light-text);
     border-width: 1px 1px 0 1px;
     padding: 14px 60px 14px 16px;
     /*font-size: 14px;*/
@@ -208,8 +208,9 @@ i{
 }
 .check.disabled, .check-try-again.disabled {
     pointer-events: none;
-    background-color: #EDEDED;
-    color: #BFBFBF;
+    background-color: var(--dis-bg);
+    color: var(--light-text);
+    border: 1px solid var(--light-text);
 }
 .disabled {
     pointer-events: none;
@@ -253,9 +254,69 @@ i{
     /*font-size: 18px;*/
 }
 
+.focus-input.wrong-input {
+    outline: 2px solid var(--red);
+    outline-offset: -1px;
+    color: var(--red);
+    position: relative;
+}
+.focus-input.wrong-input i,.focus-input.wrong-input b, .focus-input.wrong-input span, .focus-input.wrong-input div {
+    color: var(--red);
+}
+.focus-input.correct-input{
+    outline: 2px solid var(--green);
+    outline-offset: -1px;
+    color: var(--green);
+    position: relative;
+    border-bottom-width: 1px;
+}
+.focus-input.correct-input i,.focus-input.correct-input b, .focus-input.correct-input span, .focus-input.correct-input div {
+    color: var(--green);
+}
+
+.focus-input.correct-input:after {
+    position: absolute;
+    top: 50%;
+    background-size: 100%;
+    margin-top: -12px;
+    content: " ";
+    left: auto;
+    right: 3px;
+    height: 24px;
+    width: 24px;
+    text-align: center;
+    font-weight: bold;
+    background-image: url(../images/assessment_check_large.png);
+    line-height: 24px;
+    padding: 0;
+    box-sizing: border-box;
+    color: var(--green);
+    /*font-size: 18px;*/
+}
+.focus-input.wrong-input:after {
+    position: absolute;
+    top: 50%;
+    background-size: 100%;
+    margin-top: -12px;
+    content: " ";
+    left: auto;
+    right: 3px;
+    height: 24px;
+    width: 24px;
+    text-align: center;
+    font-weight: bold;
+    background-image: url(../images/x.png);
+    line-height: 24px;
+    padding: 0;
+    box-sizing: border-box;
+    color: var(--green);
+    /*font-size: 18px;*/
+}
+
 .text-link {
-    color: var(--blue);
+    color: var(--blue-light);
     cursor: pointer;
+    margin-left: 0.5rem;
 }
 
 .mcq footer {
@@ -495,4 +556,22 @@ i{
     width: 100%;
     position: relative;
     margin: auto;
+}
+
+.inputEditBox{
+    min-width: 200px;
+    min-height: 20px;
+    border: 1px solid var(--light-text);
+    display: inline-block;
+    border-radius: 5px;
+    padding: 3px 10px;
+    padding-right: 30px;
+    margin: 5px;
+}
+.inputEditBox:focus{
+    border: 2px solid var(--blue);
+}
+.inputEditBox:focus-visible {
+    outline: none;
+    border: 1px solid var(--blue);
 }

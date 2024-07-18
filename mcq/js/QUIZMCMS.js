@@ -1,3 +1,20 @@
+//Constants for Instruction 
+var quizInstructions = {
+    correctFBText: "Correcto.",//"Correct.",
+    incorrectFBText: "Incorrecto. Inténtalo de nuevo.",//"Incorrect. Please try again.",
+    quesNumText: "Pregunta ",
+    nextQuesBtnText: "Próxima pregunta",//"Next Question",
+    checkAnsBtnText: "Checar respuesta",//"Check Answer",
+    tryAgainBtnText: "Intentar otra vez",//"Try Again",
+    showAnsBtnText: "Mostrar respuesta",//"Show Answer",
+    needHelpText: "¿Necesitas ayuda con este?",//"Need help with this one?"
+    selAnsCorrNotify: "La respuesta seleccionada ##SEL_OPTION_TEXT## es correcta.",//"Selected answer ##SEL_OPTION_TEXT##  is correct.",
+    selAnsIncorrNotify: "La respuesta seleccionada ##SEL_OPTION_TEXT## es incorrecta.",//"Selected answer ##SEL_OPTION_TEXT##  is incorrect.",
+    selAnsLengthNotify: "Incorrecto. Seleccione cualquier opción ##ANS_LENGTH##.",//"Incorrect. Please select any ##ANS_LENGTH## Option.",
+    corrAnsPreText: "La respuesta correcta es",//"Correct answer is "
+}
+//Constants for Instruction End
+
 var quiz = [
     {
         q: `El prop&#x00F3;sito de esta lecci&#x00F3;n es`,
@@ -39,7 +56,7 @@ var quiz = [
         option: [`Luna llena`, `Luna nueva`, `Luna creciente`, `Luna gibosa creciente`],
         optionStyleType: `st-upper-alpha`,
         answer: [0],
-        ansText: `Q3 Rationale Text should goes here`,
+        ansText: `Q4 Rationale Text should goes here`,
         state: `notAnswered`,
         userAnswered: []
     },
@@ -50,9 +67,19 @@ var quiz = [
         option: [`Peri&#x00F3;dicos digitales`, `Revistas sobre aeron&#x00E1;utica`, `Libros especializados`, `Art&#x00ED;culos sobre astronom&#x00ED;a`],
         optionStyleType: `st-upper-alpha`,
         answer: [3],
-        ansText: `Q2 Rationale Text should goes here`,
+        ansText: `Q5 Rationale Text should goes here`,
         state: `notAnswered`,
         userAnswered: []
-    }
-
+    },
+    {
+        q: `&#x00BF;Qu&#x00E9; significa la palabra fases en esta presentaci&#x00F3;n? ###INPUT_TYPE###`,
+        q2: ``,
+        q3: [],
+        type:`INPUT_TYPE`,
+        option: [],
+        answer: [`Luna nueva, cuarto creciente, Luna llena, cuarto menguante`],
+        ansText: `Q6 Rationale Text should goes here`,
+        state: `notAnswered`,
+        userAnswered: []
+    },
 ];

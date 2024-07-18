@@ -2,10 +2,14 @@
     --primary-text: #000000;
     --light-text: #737373;
     --orange: #EB6500;
-    --blue: #007398;
+    --blue: #17a2b8;
     --white:#FFFFFF;
     --red:#cb272a;
     --green:#27772A;
     --green-tick: #63A73B;
     --dis-bg: #EDEDED;
+    --gray-border:#6c757d;
+    --gray-seperator: #c0c0c0;
+    --blue-dark: #1E3855;
+    --blue-light: #81AFDC;
 }

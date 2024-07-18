@@ -1,7 +1,28 @@
 /* Version 19.5, Date:07 July 2022 */
 /* Version 19.7, Date:08 JULY 2022 */
-const correctFBText = "Correct."
-const incorrectFBText = "Incorrect. Please try again."
+var correctFBText = "Correct."
+var incorrectFBText = "Incorrect. Please try again."
+if(typeof quizInstructions == 'undefined'){
+    var quizInstructions = {
+        correctFBText: "Correct.",
+        incorrectFBText: "Incorrect. Please try again.",
+        quesNumText: "Pregunta ",
+        nextQuesBtnText: "Next Question",//"Próxima pregunta",
+        checkAnsBtnText: "Check Answer",//"Checar respuesta",
+        tryAgainBtnText: "Try Again",//"Intentar otra vez",
+        showAnsBtnText: "Show Answer",//"Mostrar respuesta",
+        needHelpText: "Need help with this one?",//"¿Necesitas ayuda con este?"
+        selAnsCorrNotify: "Selected answer ##SEL_OPTION_TEXT##  is correct.",//"La respuesta seleccionada ##SEL_OPTION_TEXT## es correcta."
+        selAnsIncorrNotify: "Selected answer ##SEL_OPTION_TEXT##  is incorrect.",//"La respuesta seleccionada ##SEL_OPTION_TEXT## es incorrecta."
+        selAnsLengthNotify: "Incorrect. Please select any ##ANS_LENGTH## Option.",//"Incorrecto. Seleccione cualquier opción ##ANS_LENGTH##."
+        corrAnsPreText: "Correct answer is ",//"La respuesta correcta es",
+    }
+}
+if(quizInstructions){
+    correctFBText = quizInstructions.correctFBText;
+    incorrectFBText = quizInstructions.incorrectFBText;
+}
+
 var paginationTabindex = 10001;
 var optionsIndex = 1;
 const tabs = document.querySelector(".tab-content");
@@ -128,15 +149,24 @@ function setAvailableQuestion() {
 function getNewQuestion(question) {
     $('#mcq_button').show();
     selectOption = [];
-    QuestionNumber.innerText = "Question " + (question);
-    //  &lt;!-- QuestionNumber.innerText = "Question " + (question) + " of " + (quiz.length); 
-    QuestionNumber.setAttribute('aria-label', "Question " + (question));
+    if(quizInstructions){
+        QuestionNumber.innerText = quizInstructions.quesNumText + (question);
+        QuestionNumber.setAttribute('aria-label', quizInstructions.quesNumText + (question));
+    }
+    else{
+        QuestionNumber.innerText = "Question " + (question);
+        QuestionNumber.setAttribute('aria-label', "Question " + (question));
+    }
+
     QuestionNumber.setAttribute('role', "heading");
     QuestionNumber.setAttribute('tabindex', '0');
     optionsIndex++;
     // get random question
-    var questionIndex = quiz[question - 1];
-    currentQuestion = questionIndex;
+    //var questionIndex = quiz[question - 1];
+    currentQuestion = quiz[question - 1];
+    if(currentQuestion.type && currentQuestion.type == "INPUT_TYPE"){
+        currentQuestion.q = currentQuestion.q.replace("###INPUT_TYPE###", "<div contenteditable='true' id='inputEditBox' class='inputEditBox'></div>")
+    }
     QuestionName.innerHTML = currentQuestion.q;
     QuestionName.setAttribute('tabindex', '0');
     optionsIndex++
@@ -188,6 +218,7 @@ function getNewQuestion(question) {
         }
         optionContainer.appendChild(option);
     }
+    $('.inputEditBox').on('keyup', checkAndEnableButtons)
     $('.focus-input').on('keydown click', addActiveClass);
     $(".focus-input *").on("click", function (e) {
         if($(this).closest(".focus-input").length>0){
@@ -198,23 +229,42 @@ function getNewQuestion(question) {
     if (typeof bind_glossary_events == "function") {
         bind_glossary_events();
     }
+    
 
     $('.tab-pane ').attr('data-state', currentQuestion.state);
     $('.tab-pane ').attr('id', question);
     $(".ic-opt-fbk").remove();
     var optFeedback = ""
     if (currentQuestion.state === 'wrong') {
-        $('.focus-input').each(function () {
-            if ($(this).attr('data-id') == currentQuestion.userAnswered) {
-                $(this).addClass('wrong');
-                if (typeof currentQuestion.optionFeedback != 'undefined') {
-                    optFeedback = $(this).attr('data-feedback')
+        if(currentQuestion.type=="INPUT_TYPE"){
+            $(".inputEditBox").attr("data-correct", "false");
+            $(".inputEditBox").removeAttr("contenteditable");
+            $(".inputEditBox").addClass("focus-input wrong-input");
+            $(".inputEditBox").html(currentQuestion.inputUserAnswered)
+        }
+        else{
+            $('.focus-input').each(function () {
+                if ($(this).attr('data-id') == currentQuestion.userAnswered) {
+                    $(this).addClass('wrong');
+                    if (typeof currentQuestion.optionFeedback != 'undefined') {
+                        optFeedback = $(this).attr('data-feedback')
+                    }
                 }
-            }
-        });
-        $('#mcq_button').html('Try Again');
+            });
+        }
+        
+        
         $('#mcq_button').removeClass('disabled');
-        $('#mcq_button').attr('title', 'Try Again');
+        if(quizInstructions){
+            $('#mcq_button').html(quizInstructions.tryAgainBtnText);
+            $('#mcq_button').attr('title', quizInstructions.tryAgainBtnText);
+        }
+        else{
+            $('#mcq_button').html('Try Again');
+            $('#mcq_button').attr('title', 'Try Again');
+        }
+        $('#mcq_button').attr('en-text','Try Again');
+
         $('#mcq_button').attr('tabindex', '0');
         $('#answer_label').show();
         $('#Add_solution').hide();
@@ -226,12 +276,25 @@ function getNewQuestion(question) {
         }
         $('#answer_label').removeClass().addClass('not-quite');
     } else if (currentQuestion.state === 'correct') {
+        if(currentQuestion.type=="INPUT_TYPE"){
+            $(".inputEditBox").attr("data-correct", "true");
+            $(".inputEditBox").removeAttr("contenteditable");
+            $(".inputEditBox").addClass("focus-input correct-input");
+            $(".inputEditBox").html(currentQuestion.inputUserAnswered)
+        }
         if (question == quiz.length) {
             $('#mcq_button').html('Done').hide();
             $('#mcq_button').attr('title', 'Done');
         } else {
-            $('#mcq_button').html('Next Question');
-            $('#mcq_button').attr('title', 'Next Question');
+            if(quizInstructions){
+                $('#mcq_button').html(quizInstructions.nextQuesBtnText);
+                $('#mcq_button').attr('title', quizInstructions.nextQuesBtnText);
+            }
+            else{
+                $('#mcq_button').html('Next Question');
+                $('#mcq_button').attr('title', 'Next Question');
+            }
+            $('#mcq_button').attr('en-text','Next Question');
         }
         $('#mcq_button').removeClass('disabled');
         $('#mcq_button').attr('tabindex', '0');
@@ -244,10 +307,19 @@ function getNewQuestion(question) {
         unclickableOptions();
     } else {
         $('.focus-input').removeClass().addClass('focus-input');
-        $('#mcq_button').html('Check Answer');
+        if(quizInstructions){
+            $('#mcq_button').html(quizInstructions.checkAnsBtnText);
+            $('#mcq_button').attr('title', quizInstructions.checkAnsBtnText);
+        }
+        else{
+            $('#mcq_button').html('Check Answer');
+            $('#mcq_button').attr('title', 'Check Answer');
+        }
+        $('#mcq_button').attr('en-text','Check Answer');
+        
         $('#mcq_button').addClass('disabled');
         // $('#questionNumber').focus();
-        $('#mcq_button').attr('title', 'Check Answer');
+        
         // $('#mcq_button').removeAttr('tabindex');
         $('#mcq_button').attr('tabindex', '-1');
         $('#answer_label').hide();
@@ -273,6 +345,36 @@ function getNewQuestion(question) {
     questionCounter++;
     bind_annotLinkEvents();
 }
+function checkAndEnableButtons(evt){
+    evt.preventDefault();
+    evt.stopPropagation();
+    if (evt.type === 'keyup'){
+        if (currentQuestion.state !== 'wrong' && !$(evt.target).hasClass('wrong'))
+        {
+            if($(evt.target).text().trim() != ""){
+                if(quizInstructions){
+                    $('#mcq_button').html(quizInstructions.checkAnsBtnText);
+                    $('#mcq_button').attr('title', quizInstructions.checkAnsBtnText);
+                }
+                else{
+                    $('#mcq_button').html('Check Answer');
+                    $('#mcq_button').attr('title', 'Check Answer');
+                }
+                $('#mcq_button').attr('en-text','Check Answer');
+                
+                $('#mcq_button').removeAttr('aria-disabled');
+                $('#Add_solution').hide();
+                $('#answer_label').hide();
+                $('#mcq_button').removeClass('disabled');
+                $('#mcq_button').attr('tabindex', '0');
+            }
+            else{
+                $('#mcq_button').addClass('disabled');
+                $('#mcq_button').attr('aria-disabled',"true");
+            }
+        }
+    }
+}
 function addActiveClass(el) {
     el.preventDefault();
     el.stopPropagation();
@@ -289,13 +391,21 @@ function addActiveClass(el) {
                     $(el.target).nextAll().removeClass().addClass('focus-input');
                     $(el.target).removeClass().addClass('focus-input active');
                 }
-                $('#mcq_button').html('Check Answer');
+                if(quizInstructions){
+                    $('#mcq_button').html(quizInstructions.checkAnsBtnText);
+                    $('#mcq_button').attr('title', quizInstructions.checkAnsBtnText);
+                }
+                else{
+                    $('#mcq_button').html('Check Answer');
+                    $('#mcq_button').attr('title', 'Check Answer');
+                }
+                $('#mcq_button').attr('en-text','Check Answer');
+
                 $('#mcq_button').removeAttr('aria-disabled');
                 $('#Add_solution').hide();
                 $('#answer_label').hide();
                 $('.tab-pane ').attr('data-state', 'answered');
                 $('#mcq_button').removeClass('disabled');
-                $('#mcq_button').attr('title', 'Check Answer');
                 $('#mcq_button').attr('tabindex', '0');
                 ariaAnnounce('Selected option is ' + $(el.target).text());
             }
@@ -313,7 +423,16 @@ function addActiveClass(el) {
                 $(el.target).nextAll().removeClass().addClass('focus-input');
                 $(el.target).removeClass().addClass('focus-input active');
                 $(el.target).removeClass('wrong');
-                $('#mcq_button').html('Check Answer');
+                if(quizInstructions){
+                    $('#mcq_button').html(quizInstructions.checkAnsBtnText);
+                    $('#mcq_button').attr('title', quizInstructions.checkAnsBtnText);
+                }
+                else{
+                    $('#mcq_button').html('Check Answer');
+                    $('#mcq_button').attr('title', 'Check Answer');
+                }
+                $('#mcq_button').attr('en-text','Check Answer');
+
                 $('#Add_solution').hide();
                 $('#answer_label').hide();
                 $('.tab-pane ').attr('data-state', 'answered');
@@ -344,6 +463,83 @@ function check(answer, selectOption) {
     }
     return true;
 }
+
+function getInputResult(){
+    let answerText = $(".inputEditBox").text();
+    let correctAnswer = currentQuestion.answer.map(el => el = el);
+    correctAnswer = correctAnswer.join(',');
+    var wrongAns = 0;
+    let dataId = 'q-' + parseInt($('.tab-pane').attr('id'));
+    if(answerText == correctAnswer){
+        correctMsg.innerHTML = correctFBText;
+        $(".inputEditBox").attr("data-correct", "true");
+        $(".inputEditBox").addClass("focus-input correct-input");
+        updateAnswerIndicator("correct");
+        if (parseInt($('.tab-pane').attr('id')) == quiz.length) {
+            $('#mcq_button').html('Done').hide();
+            $('#mcq_button').attr('title', 'Done');
+        } else {
+            if(quizInstructions){
+                $('#mcq_button').html(quizInstructions.nextQuesBtnText);
+                $('#mcq_button').attr('title', quizInstructions.nextQuesBtnText);
+            }
+            else{
+                $('#mcq_button').html('Next Question');
+                $('#mcq_button').attr('title', 'Next Question');
+            }
+            $('#mcq_button').attr('en-text','Next Question');
+        }
+        $(".inputEditBox").removeAttr("contenteditable")
+        $('#mcq_button').attr('tabindex', '0');
+        $('#answer_label').show();
+        $('#need_help').hide();
+        $('#Add_solution').children().html(currentQuestion.ansText);
+        $('#Add_solution').show();
+        $('.tab-pane ').attr('data-state', 'correct');
+        currentQuestion.state = 'correct';
+        $('.nav-link').each(function () {
+            if ($(this).attr('data-id') == dataId) {
+                $(this).attr('data-correct', true);
+            }
+        });
+        //ariaAnnounce('Selected answer ' + answerText + ' is correct.');
+        ariaAnnounce(quizInstructions.selAnsCorrNotify.replace("##SEL_OPTION_TEXT##", answerText));
+    }
+    else{
+        wrongAns = 1;
+        correctMsg.classList.add("not-quite");
+        correctMsg.innerHTML = incorrectFBText;
+        $(".inputEditBox").removeAttr("contenteditable")
+        $(".inputEditBox").removeAttr("data-correct");
+        $(".inputEditBox").removeClass("focus-input last-child").addClass("focus-input wrong-input");
+        updateAnswerIndicator("wrong");
+        if(quizInstructions){
+            $('#mcq_button').html(quizInstructions.tryAgainBtnText);
+            $('#mcq_button').attr('title', quizInstructions.tryAgainBtnText);
+        }
+        else{
+            $('#mcq_button').html('Try Again');
+            $('#mcq_button').attr('title', 'Try Again');
+        }
+        $('#mcq_button').attr('en-text','Try Again');
+        
+        $('#mcq_button').attr('tabindex', '0');
+        $('#answer_label').show();
+        $('#need_help').show();
+        $('.tab-pane ').attr('data-state', 'wrong');
+        currentQuestion.state = 'wrong';
+        $('.nav-link').each(function () {
+            if ($(this).attr('data-id') == dataId) {
+                $(this).attr('data-correct', false);
+            }
+        });
+        //ariaAnnounce('Sected answer ' + answerText + ' is incorrect.');
+        ariaAnnounce(quizInstructions.selAnsIncorrNotify.replace("##SEL_OPTION_TEXT##", answerText));
+    }
+    //currentQuestion.userAnswered = answerText;
+    currentQuestion.inputUserAnswered = answerText;
+    bind_annotLinkEvents();
+}
 function getResult(element) {
     var wrongAns = 0;
     var id = parseInt($(element[0]).attr('data-id'));
@@ -370,8 +566,15 @@ function getResult(element) {
             $('#mcq_button').html('Done').hide();
             $('#mcq_button').attr('title', 'Done');
         } else {
-            $('#mcq_button').html('Next Question');
-            $('#mcq_button').attr('title', 'Next Question');
+            if(quizInstructions){
+                $('#mcq_button').html(quizInstructions.nextQuesBtnText);
+                $('#mcq_button').attr('title', quizInstructions.nextQuesBtnText);
+            }
+            else{
+                $('#mcq_button').html('Next Question');
+                $('#mcq_button').attr('title', 'Next Question');
+            }
+            $('#mcq_button').attr('en-text','Next Question');
         }
         $('#mcq_button').attr('tabindex', '0');
         unclickableOptions();
@@ -386,7 +589,8 @@ function getResult(element) {
                 $(this).attr('data-correct', true);
             }
         });
-        ariaAnnounce('Selected answer' + $(element).text() + ' is correct.');
+        //ariaAnnounce('Selected answer ' + $(element).text() + ' is correct.');
+        ariaAnnounce(quizInstructions.selAnsCorrNotify.replace("##SEL_OPTION_TEXT##", answerText));
     }
     else {
         var optFeedback = $(element).attr('data-feedback')
@@ -396,15 +600,24 @@ function getResult(element) {
         }
         if (currentQuestion.answer.length !== selectOption.length) {
             correctMsg.classList.add("not-quite");
-            correctMsg.innerHTML = "Incorrect. Please select any " + currentQuestion.answer.length + " Option.";
+            //correctMsg.innerHTML = "Incorrect. Please select any " + currentQuestion.answer.length + " Option.";
+            correctMsg.innerHTML = quizInstructions.selAnsLengthNotify.replace("##ANS_LENGTH##", currentQuestion.answer.length);
         }
         else {
             correctMsg.classList.add("not-quite");
             correctMsg.innerHTML = incorrectFBText;
         }
         updateAnswerIndicator("wrong");
-        $('#mcq_button').html('Try Again');
-        $('#mcq_button').attr('title', 'Try Again');
+        if(quizInstructions){
+            $('#mcq_button').html(quizInstructions.tryAgainBtnText);
+            $('#mcq_button').attr('title', quizInstructions.tryAgainBtnText);
+        }
+        else{
+            $('#mcq_button').html('Try Again');
+            $('#mcq_button').attr('title', 'Try Again');
+        }
+        $('#mcq_button').attr('en-text','Try Again');
+        
         $('#mcq_button').attr('tabindex', '0');
         $('#answer_label').show();
         $('#need_help').show();
@@ -415,7 +628,8 @@ function getResult(element) {
             }
         });
         currentQuestion.state = 'wrong';
-        ariaAnnounce('Sected answer' + $(element).text() + ' is incorrect.');
+        //ariaAnnounce('Sected answer ' + $(element).text() + ' is incorrect.');
+        ariaAnnounce(quizInstructions.selAnsIncorrNotify.replace("##SEL_OPTION_TEXT##", answerText));
     }
     currentQuestion.userAnswered = selectOption;
     bind_annotLinkEvents();
@@ -450,23 +664,30 @@ function answerIndicatot() {
     }
 }
 function updateAnswerIndicator(markType) {
-    let currentQuestion = parseInt($('.tab-pane').attr('id')) - 1;
+    let currentQuestionIndex = parseInt($('.tab-pane').attr('id')) - 1;
     if (markType === 'correct') {
         $('#answer_label').removeClass().addClass('correct');
-        $('#Add_solution').children().html(quiz[currentQuestion].ansText);
+        $('#Add_solution').children().html(quiz[currentQuestionIndex].ansText);
     } else if (markType === 'wrong') {
         $('#answer_label').removeClass().addClass('not-quite');
-        $('#Add_solution').children().html(quiz[currentQuestion].ansText);
+        $('#Add_solution').children().html(quiz[currentQuestionIndex].ansText);
     }
     bind_annotLinkEvents();
 }
 $('#mcq_button').on('mousedown click', function (e) {
     if ((e.type === 'keydown' && e.keyCode == 13) || e.type === 'click') {
         $(".ic-opt-fbk").remove();
-        let buttonText = $('#mcq_button').text().split(' ')[0].trim().toLocaleLowerCase();
+        let buttonText = $('#mcq_button').attr('en-text').split(' ')[0].trim().toLocaleLowerCase();
+        let currentQuestionIndex = parseInt($('.tab-pane').attr('id')) - 1;
+        let question = quiz[currentQuestionIndex]
         if (buttonText === 'check') {
-            let answered = $('.Multiple-choice').find('.active');
-            getResult(answered);
+            if(question.type && question.type == "INPUT_TYPE"){
+                getInputResult();
+            }
+            else{
+                let answered = $('.Multiple-choice').find('.active');
+                getResult(answered);
+            } 
         } else if (buttonText === 'next') {
             selectOption = [];
             getNewQuestion(parseInt($('.tab-pane').attr('id')) + 1);
@@ -475,23 +696,40 @@ $('#mcq_button').on('mousedown click', function (e) {
             $('#need_help').show();
         } else if (buttonText === 'try') {
             selectOption = [];
-            $('.focus-input').removeClass().addClass('focus-input');
-            $('#answer_label').hide();
-            $('#Add_solution').hide();
-            $('.nav-link').each(function () {
-                let dataId = 'q-' + parseInt($('.tab-pane').attr('id'));
-                if ($(this).attr('data-id') == dataId) {
-                    $(this).removeAttr('data-correct');
-                }
-            });
+            if(question.type && question.type == "INPUT_TYPE"){
+                $(".inputEditBox").attr("contenteditable", true)
+                $('.inputEditBox').removeClass('focus-input correct-input').removeClass("wrong-input")
+                $('.inputEditBox').html('')
+                $('#answer_label').hide();
+                $('#Add_solution').hide();
+            }
+            else{
+                $('.focus-input').removeClass().addClass('focus-input');
+                $('#answer_label').hide();
+                $('#Add_solution').hide();
+                $('.nav-link').each(function () {
+                    let dataId = 'q-' + parseInt($('.tab-pane').attr('id'));
+                    if ($(this).attr('data-id') == dataId) {
+                        $(this).removeAttr('data-correct');
+                    }
+                });
+            }
+
             $('#mcq_button').addClass('disabled');
             $('#questionNumber').focus();
-            $('#mcq_button').html('Check Answer');
-            $('#mcq_button').attr('title', 'Check Answer');
+            if(quizInstructions){
+                $('#mcq_button').html(quizInstructions.checkAnsBtnText);
+                $('#mcq_button').attr('title', quizInstructions.checkAnsBtnText);
+            }
+            else{
+                $('#mcq_button').html('Check Answer');
+                $('#mcq_button').attr('title', 'Check Answer');
+            }
+            $('#mcq_button').attr('en-text','Check Answer');
+
             // $('#mcq_button').removeAttr('tabindex');
             $('#mcq_button').attr('tabindex', '-1');
-            let currentQuestionIndex = parseInt($('.tab-pane').attr('id')) - 1;
-            let question = quiz[currentQuestionIndex]
+            
             question.userAnswered = [];
             question.state = 'notAnswered';
         }
@@ -507,28 +745,51 @@ window.onload = function () {
     $('#Add_solution').children().html(quiz[0].ansText);
     $('.arrow-left').addClass('disabled')
     bind_annotLinkEvents();
+
+    $("#need_help .instr-text").text(quizInstructions.needHelpText)
+    $("#need_help .text-link").text(quizInstructions.showAnsBtnText)
 };
 $('#show_ans').on('click keydown', (function (e) {
     if ((e.type === 'keydown' && e.keyCode == 13) || e.type === 'click') {
-        let currentQuestion = parseInt($('.tab-pane').attr('id')) - 1;
-        $('#Add_solution').children().html(quiz[currentQuestion].ansText);
+        let currentQuestionIndex = parseInt($('.tab-pane').attr('id')) - 1;
+        $('#Add_solution').children().html(quiz[currentQuestionIndex].ansText);
         $('#Add_solution').show();
         $("#show_ans").attr('aria-expanded', true);
-        $('#mcq_button').html('Try Again');
+        if(quizInstructions){
+            $('#mcq_button').html(quizInstructions.tryAgainBtnText);
+            $('#mcq_button').attr('title', quizInstructions.tryAgainBtnText);
+        }
+        else{
+            $('#mcq_button').html('Try Again');
+            $('#mcq_button').attr('title', 'Try Again');
+        }
+        $('#mcq_button').attr('en-text','Try Again');
+        
         $('#mcq_button').removeClass('disabled');
-        $('#mcq_button').attr('title', 'Try Again');
         // $('#mcq_button').removeAttr('tabindex');
         $('#mcq_button').attr('tabindex', '0');
         $('.focus-input').removeClass('wrong');
-        quiz[currentQuestion].answer.forEach(option => {
-            $("ul").find(`[data-id='${option}']`).removeClass().addClass("focus-input last-child");
-            // ariaAnnounce('Correct answer is' + $(this).text());
-        });
-        let correctAnswer = quiz[currentQuestion].answer.map(el => el = el + 1);
-        correctAnswer = correctAnswer.join(',');
-        setTimeout(() => {
-            ariaAnnounce('Correct answer is ' + correctAnswer);
-        }, 200);
+        if(quiz[currentQuestionIndex].type && quiz[currentQuestionIndex].type == "INPUT_TYPE"){
+            let correctAnswer = quiz[currentQuestionIndex].answer.map(el => el = el);
+            correctAnswer = correctAnswer.join(',');
+            $(".inputEditBox").html(correctAnswer)
+            $(".inputEditBox").removeClass("focus-input wrong-input").addClass("focus-input correct-input")
+            setTimeout(() => {
+                ariaAnnounce((quizInstructions?quizInstructions.corrAnsPreText:'Correct answer is ') + correctAnswer);
+            }, 200);
+        }
+        else{
+            quiz[currentQuestionIndex].answer.forEach(option => {
+                $("ul").find(`[data-id='${option}']`).removeClass().addClass("focus-input last-child");
+                // ariaAnnounce('Correct answer is' + $(this).text());
+            });
+            let correctAnswer = quiz[currentQuestionIndex].answer.map(el => el = el + 1);
+            correctAnswer = correctAnswer.join(',');
+            setTimeout(() => {
+                ariaAnnounce((quizInstructions?quizInstructions.corrAnsPreText:'Correct answer is ') + correctAnswer);
+            }, 200);
+        }
+
         $(".ic-opt-fbk").remove();
         $('#answer_label').hide();
         bind_annotLinkEvents();
@@ -536,37 +797,37 @@ $('#show_ans').on('click keydown', (function (e) {
 }));
 $('.arrow-left').on('click keydown', function (e) {
     if ((e.type === 'keydown' && e.keyCode == 13) || e.type === 'click') {
-        let currentQuestion = parseInt($('.tab-pane').attr('id'));
-        if (currentQuestion === 1) {
+        let currentQuestionIndex = parseInt($('.tab-pane').attr('id'));
+        if (currentQuestionIndex === 1) {
             // getNewQuestion(quiz.length);
             // autoDragPagination(quiz.length);
         } else {
-            if (currentQuestion - 1 === 1) {
+            if (currentQuestionIndex - 1 === 1) {
                 $('.arrow-left').addClass('disabled');
             } else {
                 $('.arrow-left').removeClass('disabled');
             }
             $('.arrow-right').removeClass('disabled');
-            getNewQuestion(currentQuestion - 1);
-            autoDragPagination(currentQuestion - 1);
+            getNewQuestion(currentQuestionIndex - 1);
+            autoDragPagination(currentQuestionIndex - 1);
         }
     }
 });
 $('.arrow-right').on('click keydown', function (e) {
     if ((e.type === 'keydown' && e.keyCode == 13) || e.type === 'click') {
-        let currentQuestion = parseInt($('.tab-pane').attr('id'));
-        if (currentQuestion === quiz.length) {
+        let currentQuestionIndex = parseInt($('.tab-pane').attr('id'));
+        if (currentQuestionIndex === quiz.length) {
             // getNewQuestion(1);
             // autoDragPagination(1);
         } else {
-            if (currentQuestion + 1 === quiz.length) {
+            if (currentQuestionIndex + 1 === quiz.length) {
                 $('.arrow-right').addClass('disabled');
             } else {
                 $('.arrow-right').removeClass('disabled');
             }
             $('.arrow-left').removeClass('disabled');
-            getNewQuestion(currentQuestion + 1);
-            autoDragPagination(currentQuestion + 1);
+            getNewQuestion(currentQuestionIndex + 1);
+            autoDragPagination(currentQuestionIndex + 1);
         }
     }
 });

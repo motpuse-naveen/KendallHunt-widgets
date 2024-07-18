@@ -1,3 +1,20 @@
+//Constants for Instruction 
+var quizInstructions = {
+    correctFBText: "Correcto.",//"Correct.",
+    incorrectFBText: "Incorrecto. Inténtalo de nuevo.",//"Incorrect. Please try again.",
+    quesNumText: "Pregunta ",
+    nextQuesBtnText: "Próxima pregunta",//"Next Question",
+    checkAnsBtnText: "Checar respuesta",//"Check Answer",
+    tryAgainBtnText: "Intentar otra vez",//"Try Again",
+    showAnsBtnText: "Mostrar respuesta",//"Show Answer",
+    needHelpText: "¿Necesitas ayuda con este?",//"Need help with this one?"
+    selAnsCorrNotify: "La respuesta seleccionada ##SEL_OPTION_TEXT## es correcta.",//"Selected answer ##SEL_OPTION_TEXT##  is correct.",
+    selAnsIncorrNotify: "La respuesta seleccionada ##SEL_OPTION_TEXT## es incorrecta.",//"Selected answer ##SEL_OPTION_TEXT##  is incorrect.",
+    selAnsLengthNotify: "Incorrecto. Seleccione cualquier opción ##ANS_LENGTH##.",//"Incorrect. Please select any ##ANS_LENGTH## Option.",
+    corrAnsPreText: "La respuesta correcta es",//"Correct answer is "
+}
+//Constants for Instruction End
+
 var quiz = [
     {
         q: `&#x00BF;Qu&#x00E9; se describe al inicio de esta presentaci&#x00F3;n?`,
@@ -42,6 +59,16 @@ var quiz = [
         ansText: `Q3 Rationale Text should goes here`,
         state: `notAnswered`,
         userAnswered: []
-    }
-
+    },
+    {
+        q: `El sin&#x00F3;nimo de colaborativo es ###INPUT_TYPE###`,
+        q2: ``,
+        q3: [],
+        type:`INPUT_TYPE`,
+        option: [],
+        answer: [`cooperativo`],
+        ansText: `Q6 Rationale Text should goes here`,
+        state: `notAnswered`,
+        userAnswered: []
+    },
 ];
